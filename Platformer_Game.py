@@ -9,6 +9,7 @@ import pygame
 
 pygame.init()
 
+#Colours if needed
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 GREEN = (0,255,0)
@@ -16,8 +17,10 @@ RED = (255,0,0)
 BLUE = (0,255,255)
 YELLOW = (255,255,0)
 
+#Screen size
 size = (width,height) = (800,800)
 
+#Variables for scrren and game
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("2D Platfromer")
 clock = pygame.time.Clock()
@@ -25,9 +28,11 @@ fps = 120
 
 running = True
 
+#Load background image
 bg = pygame.image.load('Background/background_0001.png')
 background = pygame.transform.scale(bg, (height, width))
 
+#Create the player object
 class Player():
     def __init__(self, x, y):
         char = pygame.image.load('Characters/character_0000.png')
@@ -45,7 +50,7 @@ class Player():
         dx = 0
         dy = 0
 
-        #get keypresses
+        #What to do when keys are pressed
         key = pygame.key.get_pressed()
         if key[pygame.K_SPACE] and self.jumped == False and self.in_air == False:
             self.vel_y = -15
@@ -57,31 +62,31 @@ class Player():
         if key[pygame.K_d]:
             dx += 5
 
-        #add gravity
+        #Gravity
         self.vel_y += 1
         if self.vel_y > 10:
             self.vel_y = 10
         dy += self.vel_y
 
-        #check for collision
+        #Collision
         self.in_air = True
         for tile in level.grid:
-            # check for collision in x direction
+     
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
-            # check for collision in y direction
+          
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
-                # check if below the ground i.e. jumping
+               
                 if self.vel_y < 0:
                     dy = tile[1].bottom - self.rect.top
                     self.vel_y = 0
-                # check if above the ground i.e. falling
+             
                 elif self.vel_y >= 0:
                     dy = tile[1].top - self.rect.bottom
                     self.vel_y = 0
                     self.in_air = False
 
-        #update player coordinates
+        #Update player coordinates
         self.rect.x += dx
         self.rect.y += dy
 
@@ -89,11 +94,12 @@ class Player():
             self.rect.bottom = height
             dy = 0
 
-        #draw player onto screen
         screen.blit(self.image, self.rect)
-
+        
+#Create size for grid and map
 tile_size = 40
 
+#Create the map object
 class Map():
     def __init__(self,data):
         grass = pygame.image.load('Tiles/tile_0000.png')
@@ -168,11 +174,13 @@ class Map():
                     self.grid.append(tile)
                 col_count += 1
             row_count += 1
-
+    
+    #Draw the images on the map
     def draw_map(self):
         for tile in self.grid:
             screen.blit(tile[0], tile[1])
 
+#Map level
 level_map = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -196,9 +204,11 @@ level_map = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 ]
 
+#Spawn player
 player = Player(100, height - 130)
 level = Map(level_map)
 
+#Game loop
 while running:
 
     clock.tick(fps)
@@ -206,18 +216,20 @@ while running:
     level.draw_map()
     player.update()
 
+    #Keep player on the screen
     if player.rect.x > 760:
         player.rect.x = 760
     if player.rect.x < 0:
         player.rect.x = 0
-
     if player.rect.y < 0:
         player.rect.y = 0
-
+    
+    #Respawn player if they touch the water
     if 640 < player.rect.y < 800 and 320 < player.rect.x < 480:
         player.rect.y = 680
         player.rect.x = 80
 
+    #End the game and show the end screen
     if 40 < player.rect.x < 120 and 40 < player.rect.y < 120:
         Win_Image = pygame.image.load('PngItem_1725256.png')
         Win_Image = pygame.transform.scale(Win_Image, (800,800))
